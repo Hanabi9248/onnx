@@ -23,6 +23,6 @@ jobs:
           git diff --check
       - name: Lint changed files
         run: |
-          python -m pip install lintrunner
+          python -m pip install lintrunner -r requirements-lintrunner.txt
           lintrunner init
           lintrunner onnx/defs/sequence/utils.cc tests/python/shape_inference_test.py
