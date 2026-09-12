@@ -1,0 +1,47 @@
+name: Validate optional split input
+on:
+  push:
+    branches: [codex/validate-optional-split]
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      CMAKE_BUILD_PARALLEL_LEVEL: '2'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 27d7d6890cb8bfa7ed5cda2f2656f82b6af0736a
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test and lint dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Build baseline from source
+        run: python -m pip install -e . -v
+      - name: Add regression tests
+        run: |
+          python -c "import base64;open('/tmp/split.patch','wb').write(base64.b64decode('ZGlmZiAtLWdpdCBhL29ubngvZGVmcy9zZXF1ZW5jZS91dGlscy5jYyBiL29ubngvZGVmcy9zZXF1ZW5jZS91dGlscy5jYwppbmRleCAxNzc0ZDRjLi5iMzBiOWE3IDEwMDY0NAotLS0gYS9vbm54L2RlZnMvc2VxdWVuY2UvdXRpbHMuY2MKKysrIGIvb25ueC9kZWZzL3NlcXVlbmNlL3V0aWxzLmNjCkBAIC02NiwxMCArNjYsOSBAQCBzdGQ6OmZ1bmN0aW9uPHZvaWQoT3BTY2hlbWEmKT4gU3BsaXRUb1NlcXVlbmNlT3BHZW5lcmF0b3IoCiAgICAgICAgICAgICBheGlzICs9IHI7CiAgICAgICAgICAgfQogCi0gICAgICAgICAgc2l6ZV90IG51bV9pbnB1dHMgPSBjdHguZ2V0TnVtSW5wdXRzKCk7CiAgICAgICAgICAgaW50NjRfdCBzcGxpdFNpemUgPSAxOwogICAgICAgICAgIGludDY0X3Qga2VlcGRpbXMgPSAxOwotICAgICAgICAgIGlmIChudW1faW5wdXRzID09IDEpIHsKKyAgICAgICAgICBpZiAoIWN0eC5oYXNJbnB1dCgxKSkgewogICAgICAgICAgICAgLy8gaW5wdXQgc3BsaXQgaXMgb21pdHRlZCwgZGVmYXVsdCB0byBzcGxpdCBieSAxLgogICAgICAgICAgICAgY29uc3QgYXV0byogY29uc3QgYXR0cl9wcm90byA9IGN0eC5nZXRBdHRyaWJ1dGUoImtlZXBkaW1zIik7CiAgICAgICAgICAgICBpZiAoYXR0cl9wcm90bykgewpkaWZmIC0tZ2l0IGEvdGVzdHMvcHl0aG9uL3NoYXBlX2luZmVyZW5jZV90ZXN0LnB5IGIvdGVzdHMvcHl0aG9uL3NoYXBlX2luZmVyZW5jZV90ZXN0LnB5CmluZGV4IDUzYmU2MTAuLmQyZDJiZDcgMTAwNjQ0Ci0tLSBhL3Rlc3RzL3B5dGhvbi9zaGFwZV9pbmZlcmVuY2VfdGVzdC5weQorKysgYi90ZXN0cy9weXRob24vc2hhcGVfaW5mZXJlbmNlX3Rlc3QucHkKQEAgLTkwMzEsMTAgKzkwMzEsMTIgQEAgY2xhc3MgVGVzdFNoYXBlSW5mZXJlbmNlKFRlc3RTaGFwZUluZmVyZW5jZUhlbHBlcik6CiAgICAgICAgICAgICAgICAgb3BzZXRfaW1wb3J0cz1baGVscGVyLm1ha2Vfb3BzZXRpZChPTk5YX0RPTUFJTiwgdmVyc2lvbildLAogICAgICAgICAgICAgKQogCi0gICAgZGVmIHRlc3Rfc3BsaXRfdG9fc2VxdWVuY2Vfa2VlcGRpbXMoc2VsZikgLT4gTm9uZToKKyAgICBAcHl0ZXN0Lm1hcmsucGFyYW1ldHJpemUoImlucHV0cyIsIFtbImlucHV0Il0sIFsiaW5wdXQiLCAiIl1dKQorICAgIEBweXRlc3QubWFyay5wYXJhbWV0cml6ZSgidmVyc2lvbiIsIGFsbF92ZXJzaW9uc19mb3IoIlNwbGl0VG9TZXF1ZW5jZSIpKQorICAgIGRlZiB0ZXN0X3NwbGl0X3RvX3NlcXVlbmNlX2tlZXBkaW1zKHNlbGYsIGlucHV0czogbGlzdFtzdHJdLCB2ZXJzaW9uOiBpbnQpIC0+IE5vbmU6CiAgICAgICAgIGdyYXBoID0gc2VsZi5fbWFrZV9ncmFwaCgKICAgICAgICAgICAgIFsoImlucHV0IiwgVGVuc29yUHJvdG8uRkxPQVQsICg2LCA0KSldLAotICAgICAgICAgICAgW21ha2Vfbm9kZSgiU3BsaXRUb1NlcXVlbmNlIiwgWyJpbnB1dCJdLCBbIm91dHB1dF9zZXF1ZW5jZSJdLCBrZWVwZGltcz0xKV0sCisgICAgICAgICAgICBbbWFrZV9ub2RlKCJTcGxpdFRvU2VxdWVuY2UiLCBpbnB1dHMsIFsib3V0cHV0X3NlcXVlbmNlIl0sIGtlZXBkaW1zPTEpXSwKICAgICAgICAgICAgIFtdLAogICAgICAgICApCiAgICAgICAgIHNlbGYuX2Fzc2VydF9pbmZlcnJlZCgKQEAgLTkwNDQsMTIgKzkwNDYsMTUgQEAgY2xhc3MgVGVzdFNoYXBlSW5mZXJlbmNlKFRlc3RTaGFwZUluZmVyZW5jZUhlbHBlcik6CiAgICAgICAgICAgICAgICAgICAgICJvdXRwdXRfc2VxdWVuY2UiLCBUZW5zb3JQcm90by5GTE9BVCwgKDEsIDQpCiAgICAgICAgICAgICAgICAgKQogICAgICAgICAgICAgXSwKKyAgICAgICAgICAgIG9wc2V0X2ltcG9ydHM9W2hlbHBlci5tYWtlX29wc2V0aWQoT05OWF9ET01BSU4sIHZlcnNpb24pXSwKICAgICAgICAgKQogCi0gICAgZGVmIHRlc3Rfc3BsaXRfdG9fc2VxdWVuY2Vfbm90X2tlZXBkaW1zKHNlbGYpIC0+IE5vbmU6CisgICAgQHB5dGVzdC5tYXJrLnBhcmFtZXRyaXplKCJpbnB1dHMiLCBbWyJpbnB1dCJdLCBbImlucHV0IiwgIiJdXSkKKyAgICBAcHl0ZXN0Lm1hcmsucGFyYW1ldHJpemUoInZlcnNpb24iLCBhbGxfdmVyc2lvbnNfZm9yKCJTcGxpdFRvU2VxdWVuY2UiKSkKKyAgICBkZWYgdGVzdF9zcGxpdF90b19zZXF1ZW5jZV9ub3Rfa2VlcGRpbXMoc2VsZiwgaW5wdXRzOiBsaXN0W3N0cl0sIHZlcnNpb246IGludCkgLT4gTm9uZToKICAgICAgICAgZ3JhcGggPSBzZWxmLl9tYWtlX2dyYXBoKAogICAgICAgICAgICAgWygiaW5wdXQiLCBUZW5zb3JQcm90by5GTE9BVCwgKDYsIDQpKV0sCi0gICAgICAgICAgICBbbWFrZV9ub2RlKCJTcGxpdFRvU2VxdWVuY2UiLCBbImlucHV0Il0sIFsib3V0cHV0X3NlcXVlbmNlIl0sIGtlZXBkaW1zPTApXSwKKyAgICAgICAgICAgIFttYWtlX25vZGUoIlNwbGl0VG9TZXF1ZW5jZSIsIGlucHV0cywgWyJvdXRwdXRfc2VxdWVuY2UiXSwga2VlcGRpbXM9MCldLAogICAgICAgICAgICAgW10sCiAgICAgICAgICkKICAgICAgICAgc2VsZi5fYXNzZXJ0X2luZmVycmVkKApAQCAtOTA1OSw2ICs5MDY0LDcgQEAgY2xhc3MgVGVzdFNoYXBlSW5mZXJlbmNlKFRlc3RTaGFwZUluZmVyZW5jZUhlbHBlcik6CiAgICAgICAgICAgICAgICAgICAgICJvdXRwdXRfc2VxdWVuY2UiLCBUZW5zb3JQcm90by5GTE9BVCwgKDQsKQogICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgIF0sCisgICAgICAgICAgICBvcHNldF9pbXBvcnRzPVtoZWxwZXIubWFrZV9vcHNldGlkKE9OTlhfRE9NQUlOLCB2ZXJzaW9uKV0sCiAgICAgICAgICkKIAogICAgIGRlZiB0ZXN0X3NwbGl0X3RvX3NlcXVlbmNlX2lnbm9yZV9rZWVwZGltcyhzZWxmKSAtPiBOb25lOgo='))"
+          git apply --include=tests/python/shape_inference_test.py /tmp/split.patch
+      - name: Confirm baseline regression
+        run: |
+          set +e
+          python -m pytest tests/python/shape_inference_test.py -k 'split_to_sequence_keepdims or split_to_sequence_not_keepdims' -q > /tmp/baseline.txt 2>&1
+          result=$?
+          cat /tmp/baseline.txt
+          test "$result" -eq 1
+          grep -q 'FAILED.*split_to_sequence' /tmp/baseline.txt
+      - name: Apply fix and rebuild
+        run: |
+          git apply --include=onnx/defs/sequence/utils.cc /tmp/split.patch
+          python -m pip install -e . -v
+      - name: Run shape inference tests
+        run: python -m pytest tests/python/shape_inference_test.py tests/python/node_shape_inference_test.py tests/python/split_shape_inference_test.py -q
+      - name: Lint changed files
+        run: |
+          lintrunner init
+          lintrunner --paths onnx/defs/sequence/utils.cc tests/python/shape_inference_test.py
