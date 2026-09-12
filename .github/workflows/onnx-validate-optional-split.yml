@@ -44,4 +44,4 @@ jobs:
       - name: Lint changed files
         run: |
           lintrunner init
-          lintrunner --paths onnx/defs/sequence/utils.cc tests/python/shape_inference_test.py
+          lintrunner onnx/defs/sequence/utils.cc tests/python/shape_inference_test.py
